@@ -18,7 +18,7 @@ footer{
 img{
     display: block;
     width: 100%;
-    max-width: 720px;
+    max-width: 1000px;
     height: auto;
     margin: 20px auto;
     border-radius: 20px;
@@ -40,8 +40,24 @@ nav{
     margin-top: 24px;
 }
 nav a{
+    text-decoration-line: none;
     color: #5b5870;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #635bff;
     font-weight: 700;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s ease;
+}
+nav a:hover{
+    color: #ffffff;
+    background-color: #635bff;
+}
+nav a:focus{
+    outline: 3px solid #b9b5ff;
+    outline-offset: 2px;
+}
+nav a:active{
+    transform: translateY(1px);
 }
 h1{
     font-size: 48px;
@@ -97,6 +113,13 @@ form{
     align-items: center;
     gap: 12px;
 }
+input{
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #b8b7c5;
+    border-radius: 10px;
+}
 button{
     padding: 12px 18px;
     border: 0;
@@ -105,6 +128,10 @@ button{
     background-color: #635bff;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s ease;
+}
+input,
+button{
+    font: inherit;
 }
 button:hover{
     background-color: #4b43db;
