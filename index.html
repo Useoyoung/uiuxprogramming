@@ -134,8 +134,8 @@
         </article>
 
         <article class="event-card">
-          <h3>반려식물 정보</h3> <!--input 이벤트-->
-          <label for="nickname">반려 식물 이름</label>
+          <h3>사용자 정보</h3> <!--input 이벤트-->
+          <label for="nickname">사용자 이름</label>
           <input type="text" id="nickname" maxlength="10">
           <p id="nicknameCount" aria-live="polite">0 / 10</p>
         </article>
@@ -146,10 +146,73 @@
             <input type="checkbox" id="agreeCheck">
             맞춤형 케어를 위한 정보 활용에 동의합니다.
           </label>
-          <p id="agreeMessage" aria-live="polite">동의 후 맞춤형 케어를 이용하실 수 있습니다.</p>
-          <button id="startButton" type="button" disabled>맞춤형 케어 시작하기</button>
+          <p id="agreeMessage" aria-live="polite">동의 후 맞춤형 케어 설정을 시작할 수 있습니다.</p>
+          <button id="startButton" type="button" disabled>맞춤형 케어 설정 시작하기</button>
         </article>
       </div>
+    </section>
+
+    <dialog id="recording-dialog" aria-labelledby="recording-title" aria-describedby="recording-description">
+      <h2 id="recording-title">정보 활용 안내</h2>
+      <p id="recording-description">맞춤형 케어에 정보를 활용할 수 있습니다.</p>
+      <div class="dialog-actions">
+        <button id="recording-cancel" type="button">돌아가기</button>
+        <button id="recording-confirm" type="button">동의하고 설정 시작하기</button>
+      </div>
+    </dialog>
+
+    <section id="training-flow" class="training-flow" hidden>
+      <h2>맞춤형 케어 설정</h2>
+      <p class="progress" aria-label="설정 진행 단계">
+        <span class="progress__item">1 · 정보</span>
+        <span class="progress__item">2 · 조건</span>
+        <span class="progress__item">3 · 확인</span>
+      </p>
+
+      <section class="step" data-step="1" hidden>
+        <h3>반려 식물의 정보를 입력해주세요.</h3>
+        <label for="presentation-title">반려 식물 이름</label>
+        <input id="presentation-title" type="text" placeholder="예 : 쑥쑥이" aria-describedby="title-error">
+        <p id="title-error" class="error-message" aria-live="polite"></p>
+        <button id="title-next" type="button">케어 조건 선택하기</button>
+      </section>
+
+      <section class="step" data-step="2" hidden>
+        <h3>케어 조건을 선택해주세요.</h3>
+        <label for="duration-range">돌볼 수 있는 시간</label>
+        <input id="duration-range" type="range" min="0" max="2" step="1" value="1">
+        <output id="duration-value" for="duration-range">5분</output>
+        <label><input type="checkbox" id="qna-option">질의응답 포함</label>
+        <fieldset id="qna-options" hidden>
+          <legend>질문 수</legend>
+          <label><input type="radio" name="qna-count" value="1">1개</label>
+          <label><input type="radio" name="qna-count" value="2" checked>2개</label>
+          <label><input type="radio" name="qna-count" value="3">3개</label>
+        </fieldset>
+        <div class="step-actions">
+          <button id="option-prev" type="button">이전</button>
+          <button id="option-next" type="button">내용 확인하기</button>
+        </div>
+      </section>
+
+      <section class="step" data-step="3" hidden>
+        <h3>입력한 내용을 확인해주세요.</h3>
+        <div class="summary-list">
+          <div><span>반려 식물 이름</span><strong id="summary-title"></strong></div>
+          <div><span>돌볼 수 있는 시간</span><strong id="summary-duration"></strong></div>
+          <div><span>질의 응답</span><strong id="summary-qna"></strong></div>
+        </div>
+        <div class="step-actions">
+          <button id="summary-prev" type="button">수정하기</button>
+          <button id="finish-button" type="button">설정 완료하기</button>
+        </div>
+      </section>
+
+      <section class="step complete-step" data-step="4" hidden>
+        <h3>맞춤형 케어 설정이 완료되었습니다.</h3>
+        <p>설정한 내용을 확인했습니다. 필요하면 다시 설정할 수 있습니다.</p>
+        <button id="restart-button" type="button">다시 설정하기</button>
+      </section>
     </section>
 
     <section id="subscribe" class="subscribe-card">
