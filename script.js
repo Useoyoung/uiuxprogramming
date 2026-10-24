@@ -183,7 +183,7 @@ recordingConfirm.addEventListener("click", () => {
 function validateTitle() {
     const value = titleInput.value.trim();
     if (!value) {
-        titleError.textContent = "발표 제목을 입력해주세요.";
+        titleError.textContent = "반려 식물 이름을 입력해주세요.";
         titleInput.classList.add("has-error");
         titleInput.focus();
         return false;
@@ -214,7 +214,7 @@ optionNext.addEventListener("click", () => {
     formData.qnaCount = count.value;
     summaryTitle.textContent = formData.title;
     summaryDuration.textContent = formData.duration + "분";
-    summaryQna.textContent = formData.qna ? formData.qnaCount + "개 포함" : "미포함";
+    summaryQna.textContent = formData.qna ? formData.qnaCount + "일" : "0일";
     showStep(2);
 });
 
@@ -237,6 +237,174 @@ restartButton.addEventListener("click", () => {
     summaryDuration.textContent = "";
     summaryQna.textContent = "";
     showStep(0);
+});
+
+const environmentStartButton = document.querySelector("#environment-start-button");
+const environmentFlow = document.querySelector("#environment-flow");
+const environmentSteps = environmentFlow.querySelectorAll(".environment-step");
+const environmentProgressItems = environmentFlow.querySelectorAll(".environment-progress-item");
+
+const plantTypeInput = document.querySelector("#plant-type");
+const plantTypeError = document.querySelector("#plant-type-error");
+const environmentError = document.querySelector("#environment-error");
+const environmentSummaryPlant = document.querySelector("#environment-summary-plant");
+const environmentSummaryDirection = document.querySelector("#environment-summary-direction");
+const environmentSummarySeason = document.querySelector("#environment-summary-season");
+const environmentSummaryGlass = document.querySelector("#environment-summary-glass");
+const environmentSummaryCurtain = document.querySelector("#environment-summary-curtain");
+const environmentSummaryScreen = document.querySelector("#environment-summary-screen");
+const environmentSummaryShade = document.querySelector("#environment-summary-shade");
+const environmentSummaryDistance = document.querySelector("#environment-summary-distance");
+const environmentSummaryVentilation = document.querySelector("#environment-summary-ventilation");
+
+const environmentData = {plantType: "", windowDirection: "", season: "", glassType: "", curtain: "", screen: "", shade: "", plantDistance: "", ventilation: ""};
+
+function showEnvironmentStep(stepIndex) {
+    environmentSteps.forEach(function (step, index) {
+        step.hidden = index !== stepIndex;
+    });
+
+    environmentProgressItems.forEach(function (item, index) {
+        item.classList.toggle("is-active", index === stepIndex);
+    });
+}
+
+environmentStartButton.addEventListener("click", function () {
+    trainingFlow.hidden = true;
+    environmentFlow.hidden = false;
+    showEnvironmentStep(0);
+    environmentFlow.scrollIntoView({ behavior: "smooth" });
+});
+
+document.querySelector("#back-to-care-button").addEventListener("click", function () {
+    environmentFlow.hidden = true;
+    trainingFlow.hidden = false;
+    showStep(3);
+});
+
+document.querySelector("#plant-type-next").addEventListener("click", function () {
+    const plantType = plantTypeInput.value.trim();
+
+    if (plantType === "") {
+        plantTypeError.textContent = "식물 종류를 입력해주세요.";
+        plantTypeInput.focus();
+        return;
+    }
+
+    environmentData.plantType = plantType;
+    plantTypeError.textContent = "";
+    showEnvironmentStep(1);
+});
+
+const environmentNext = document.querySelector("#environment-next");
+const directionError = document.querySelector("#direction-error");
+
+environmentNext.addEventListener("click", function () {
+    const selectedDirection = document.querySelector('input[name="window-direction"]:checked');
+    const selectedSeason = document.querySelector('input[name="season"]:checked');
+
+    if (!selectedDirection || !selectedSeason) {
+        directionError.textContent = "창문 방향과 계절을 각각 선택해주세요.";
+        return;
+    }
+
+    directionError.textContent = "";
+    environmentData.windowDirection = selectedDirection.value;
+    environmentData.season = selectedSeason.value;
+
+    showEnvironmentStep(2);
+});
+
+const environmentPrevButtons = environmentFlow.querySelectorAll(".environment-prev");
+
+environmentPrevButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        const currentStep = Array.from(environmentSteps).findIndex(
+            function (step) {
+                return !step.hidden;
+            }
+        );
+
+        showEnvironmentStep(currentStep - 1);
+    });
+});
+
+document.querySelector("#environment-confirm-button").addEventListener("click", function () {
+    const selectedGlass = document.querySelector('input[name="glass-type"]:checked');
+    const selectedCurtain = document.querySelector('input[name="curtain"]:checked');
+    const selectedScreen = document.querySelector('input[name="screen"]:checked');
+    const selectedShade = document.querySelector('input[name="shade"]:checked');
+    const selectedDistance = document.querySelector('input[name="plant-distance"]:checked');
+    const selectedVentilation = document.querySelector('input[name="ventilation"]:checked');
+
+    if (!selectedGlass || !selectedCurtain || !selectedScreen || !selectedShade || !selectedDistance || !selectedVentilation) {
+        environmentError.textContent = "각 항목을 선택한 뒤 내용 확인하기를 눌러주세요.";
+        return;
+    }
+
+    environmentData.glassType = selectedGlass.value;
+    environmentData.curtain = selectedCurtain.value;
+    environmentData.screen = selectedScreen.value;
+    environmentData.shade = selectedShade.value;
+    environmentData.plantDistance = selectedDistance.value;
+    environmentData.ventilation = selectedVentilation.value;
+
+    environmentError.textContent = "";
+
+    environmentSummaryPlant.textContent = environmentData.plantType;
+    environmentSummaryDirection.textContent = environmentData.windowDirection;
+    environmentSummarySeason.textContent = environmentData.season;
+    environmentSummaryGlass.textContent = environmentData.glassType;
+    environmentSummaryCurtain.textContent = environmentData.curtain;
+    environmentSummaryScreen.textContent = environmentData.screen;
+    environmentSummaryShade.textContent = environmentData.shade;
+    environmentSummaryDistance.textContent = environmentData.plantDistance;
+    environmentSummaryVentilation.textContent = environmentData.ventilation;
+
+    showEnvironmentStep(3);
+});
+
+document.querySelector("#environment-finish-button").addEventListener("click", function () {
+    showEnvironmentStep(4);
+});
+
+document.querySelector("#environment-restart-button").addEventListener("click", function () {
+    environmentData.plantType = "";
+    environmentData.windowDirection = "";
+    environmentData.season = "";
+    environmentData.glassType = "";
+    environmentData.curtain = "";
+    environmentData.screen = "";
+    environmentData.shade = "";
+    environmentData.plantDistance = "";
+    environmentData.ventilation = "";
+
+    plantTypeInput.value = "";
+    plantTypeError.textContent = "";
+    directionError.textContent = "";
+    environmentError.textContent = "";
+
+    document.querySelectorAll('#environment-flow input[type="radio"]').forEach(function (radio) {
+        radio.checked = false;
+    });
+
+    environmentSummaryPlant.textContent = "";
+    environmentSummaryDirection.textContent = "";
+    environmentSummarySeason.textContent = "";
+    environmentSummaryGlass.textContent = "";
+    environmentSummaryCurtain.textContent = "";
+    environmentSummaryScreen.textContent = "";
+    environmentSummaryShade.textContent = "";
+    environmentSummaryDistance.textContent = "";
+    environmentSummaryVentilation.textContent = "";
+
+    showEnvironmentStep(0);
+    environmentFlow.scrollIntoView({ behavior: "smooth" });
+});
+
+
+document.querySelector("#environment-close-button").addEventListener("click", function () {
+    environmentFlow.hidden = true;
 });
 
 /*console.log(typeof serviceName);

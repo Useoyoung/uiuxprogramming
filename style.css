@@ -369,6 +369,37 @@ body.dark .training-flow{
     border-color: #2d2e38;
 }
 
+#environment-flow .environment-step[hidden]{
+    display: none;
+}
+#environment-flow label{
+    display: block;
+    margin: 16px 0 6px;
+    font-weight: 700;
+}
+#environment-flow input,
+#environment-flow select{
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #b8b7c5;
+    border-radius: 10px;
+    font: inherit;
+}
+#environment-flow input[type="radio"]{
+    width: auto;
+    padding: 0;
+}
+#environment-flow .step-actions{
+    flex-wrap: wrap;
+}
+#environment-flow fieldset{
+    margin: 20px 0;
+}
+#environment-flow fieldset legend{
+    margin-bottom: 8px;
+}
+
 /*웹페이지가 가로 폭이 768px이하일 때만 적용*/
 @media (max-width : 768px){
     body{
@@ -437,4 +468,21 @@ body.dark .training-flow{
     .training-flow .dialog-actions button {width: 100%;}
     .training-flow input[type="checkbox"],
     .training-flow input[type="radio"] {width: auto;}
+
+    #environment-flow .step-actions{
+        flex-direction: row;
+        gap: 12px;
+    }
+    #environment-flow .step-actions button{
+        width: auto;
+        flex: 1;
+    }
+
+    #training-flow .complete-step .step-actions{
+        flex-direction: row;
+    }
+    #training-flow .complete-step .step-actions button{
+        width: auto;
+        flex: 1;
+    }
 }

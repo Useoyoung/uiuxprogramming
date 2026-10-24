@@ -162,7 +162,7 @@
     </dialog>
 
     <section id="training-flow" class="training-flow" hidden>
-      <h2>맞춤형 케어 설정</h2>
+      <h2>반려 식물 설정</h2>
       <p class="progress" aria-label="설정 진행 단계">
         <span class="progress__item">1 · 정보</span>
         <span class="progress__item">2 · 조건</span>
@@ -182,12 +182,12 @@
         <label for="duration-range">돌볼 수 있는 시간</label>
         <input id="duration-range" type="range" min="0" max="2" step="1" value="1">
         <output id="duration-value" for="duration-range">5분</output>
-        <label><input type="checkbox" id="qna-option">질의응답 포함</label>
+        <label><input type="checkbox" id="qna-option">키우기 시작한 일 수(케어 설정 당일이면 체크하지 마세요.)</label>
         <fieldset id="qna-options" hidden>
-          <legend>질문 수</legend>
-          <label><input type="radio" name="qna-count" value="1">1개</label>
-          <label><input type="radio" name="qna-count" value="2" checked>2개</label>
-          <label><input type="radio" name="qna-count" value="3">3개</label>
+          <legend>키우기 시작한 일 수</legend>
+          <label><input type="radio" name="qna-count" value="1">1일</label>
+          <label><input type="radio" name="qna-count" value="2" checked>2일</label>
+          <label><input type="radio" name="qna-count" value="3">그 이상</label>
         </fieldset>
         <div class="step-actions">
           <button id="option-prev" type="button">이전</button>
@@ -200,7 +200,7 @@
         <div class="summary-list">
           <div><span>반려 식물 이름</span><strong id="summary-title"></strong></div>
           <div><span>돌볼 수 있는 시간</span><strong id="summary-duration"></strong></div>
-          <div><span>질의 응답</span><strong id="summary-qna"></strong></div>
+          <div><span>키우기 시작한 일 수</span><strong id="summary-qna"></strong></div>
         </div>
         <div class="step-actions">
           <button id="summary-prev" type="button">수정하기</button>
@@ -209,9 +209,140 @@
       </section>
 
       <section class="step complete-step" data-step="4" hidden>
-        <h3>맞춤형 케어 설정이 완료되었습니다.</h3>
+        <h3>반려 식물 설정이 완료되었습니다.</h3>
         <p>설정한 내용을 확인했습니다. 필요하면 다시 설정할 수 있습니다.</p>
-        <button id="restart-button" type="button">다시 설정하기</button>
+        <div class="step-actions">
+          <button id="restart-button" type="button">다시 설정하기</button>
+          <button id="environment-start-button" type="button">환경 등록하기</button>
+        </div>
+      </section>
+    </section>
+    
+    <section id="environment-flow" class="training-flow" hidden>
+      <h2>일조량·환기 환경 등록</h2>
+      <p class="progress" aria-label="환경 등록 진행 단계">
+        <span class="progress__item environment-progress-item is-active">1 · 식물 정보</span>
+        <span class="progress__item environment-progress-item">2 · 창문 방향</span>
+        <span class="progress__item environment-progress-item">3 · 주변 환경</span>
+        <span class="progress__item environment-progress-item">4 · 내용 확인</span>
+      </p>
+
+      <section class="environment-step" data-step="1">
+        <h3>어떤 식물을 키우고 있나요?</h3>
+        <label for="plant-type">식물 종류</label>
+        <input id="plant-type" type="text" placeholder="예: 몬스테라, 바질" aria-describedby="plant-type-error">
+        <p id="plant-type-error" class="error-message" aria-live="polite"></p>
+        <div class="step-actions">
+          <button id="back-to-care-button" type="button">반려 식물 설정으로 돌아가기</button>
+          <button id="plant-type-next" type="button">창문 방향 등록하기</button>
+        </div>
+      </section>
+
+      <section class="environment-step" data-step="2" hidden>
+        <h3>창문 방향과 현재 계절을 선택해주세요.</h3>
+        <fieldset>
+          <legend>창문 방향</legend>
+          <label><input type="radio" name="window-direction" value="남향"> 남향</label>
+          <label><input type="radio" name="window-direction" value="동남향"> 동남향</label>
+          <label><input type="radio" name="window-direction" value="동향"> 동향</label>
+          <label><input type="radio" name="window-direction" value="서남향"> 서남향</label>
+          <label><input type="radio" name="window-direction" value="서향"> 서향</label>
+          <label><input type="radio" name="window-direction" value="동북향"> 동북향</label>
+          <label><input type="radio" name="window-direction" value="북향"> 북향</label>
+          <label><input type="radio" name="window-direction" value="잘 모르겠어요"> 잘 모르겠어요</label>
+        </fieldset>
+        <fieldset>
+          <legend>현재 계절</legend>
+          <label><input type="radio" name="season" value="봄"> 봄</label>
+          <label><input type="radio" name="season" value="여름"> 여름</label>
+          <label><input type="radio" name="season" value="가을"> 가을</label>
+          <label><input type="radio" name="season" value="겨울"> 겨울</label>
+        </fieldset>
+        <p id="direction-error" class="error-message" aria-live="polite"></p>
+        <div class="step-actions">
+          <button class="environment-prev" type="button">이전</button>
+          <button id="environment-next" type="button">주변 환경 등록하기</button>
+        </div>
+      </section>
+
+      <section class="environment-step" data-step="3" hidden>
+        <h3>식물을 둘 장소의 환경을 선택해주세요.</h3>
+        <fieldset>
+          <legend>유리창 종류</legend>
+          <label><input type="radio" name="glass-type" value="단창"> 단창</label>
+          <label><input type="radio" name="glass-type" value="복층 유리창"> 복층 유리창</label>
+          <label><input type="radio" name="glass-type" value="UV차단 필름"> UV차단 필름</label>
+          <label><input type="radio" name="glass-type" value="창문 없음(야외)"> 창문 없음(야외)</label>
+          <label><input type="radio" name="glass-type" value="잘 모르겠어요"> 잘 모르겠어요</label>
+        </fieldset>
+        <fieldset>
+          <legend>낮에 커튼이나 차양을 사용하나요?</legend>
+          <label><input type="radio" name="curtain" value="레이스 커튼"> 레이스 커튼</label>
+          <label><input type="radio" name="curtain" value="두꺼운 커튼"> 두꺼운 커튼</label>
+          <label><input type="radio" name="curtain" value="블라인드"> 블라인드</label>
+          <label><input type="radio" name="curtain" value="차양"> 차양</label>
+          <label><input type="radio" name="curtain" value="사용하지 않음"> 사용하지 않음</label>
+        </fieldset>
+        <fieldset>
+          <legend>방충망이 있나요?</legend>
+          <label><input type="radio" name="screen" value="있음"> 있음</label>
+          <label><input type="radio" name="screen" value="없음"> 없음</label>
+        </fieldset>
+        <fieldset>
+          <legend>창문 밖을 가리는 것이 있나요?</legend>
+          <label><input type="radio" name="shade" value="없음"> 없음</label>
+          <label><input type="radio" name="shade" value="처마나 발코니"> 처마나 발코니</label>
+          <label><input type="radio" name="shade" value="큰 나무"> 큰 나무</label>
+          <label><input type="radio" name="shade" value="맞은편 건물"> 맞은편 건물</label>
+        </fieldset>
+        <fieldset>
+          <legend>창문에서 식물까지 거리</legend>
+          <label><input type="radio" name="plant-distance" value="창가, 0~50cm"> 창가, 0~50cm</label>
+          <label><input type="radio" name="plant-distance" value="1m 이내"> 1m 이내</label>
+          <label><input type="radio" name="plant-distance" value="1~2m"> 1~2m</label>
+          <label><input type="radio" name="plant-distance" value="2~3m"> 2~3m</label>
+          <label><input type="radio" name="plant-distance" value="3m 이상"> 3m 이상</label>
+        </fieldset>
+        <fieldset>
+          <legend>환기 상태</legend>
+          <label><input type="radio" name="ventilation" value="자주 환기해요"> 자주 환기해요</label>
+          <label><input type="radio" name="ventilation" value="가끔 환기해요"> 가끔 환기해요</label>
+          <label><input type="radio" name="ventilation" value="환기가 어려워요"> 환기가 어려워요</label>
+        </fieldset>
+        <p id="environment-error" class="error-message" aria-live="polite"></p>
+        <div class="step-actions">
+          <button class="environment-prev" type="button">이전</button>
+          <button id="environment-confirm-button" type="button">내용 확인하기</button>
+        </div>
+      </section>
+
+      <section class="environment-step" data-step="4" hidden>
+        <h3>입력한 내용을 확인해주세요.</h3>
+        <div class="summary-list">
+          <div><span>식물 종류</span><strong id="environment-summary-plant"></strong></div>
+          <div><span>창문 방향</span><strong id="environment-summary-direction"></strong></div>
+          <div><span>계절</span><strong id="environment-summary-season"></strong></div>
+          <div><span>유리창 종류</span><strong id="environment-summary-glass"></strong></div>
+          <div><span>커튼·차양</span><strong id="environment-summary-curtain"></strong></div>
+          <div><span>방충망</span><strong id="environment-summary-screen"></strong></div>
+          <div><span>창문 밖 가림</span><strong id="environment-summary-shade"></strong></div>
+          <div><span>창문에서 식물까지 거리</span><strong id="environment-summary-distance"></strong></div>
+          <div><span>환기 상태</span><strong id="environment-summary-ventilation"></strong></div>
+        </div>
+        <div class="step-actions">
+          <button class="environment-prev" type="button">이전</button>
+          <button id="environment-finish-button" type="button">설정 완료하기</button>
+        </div>
+      </section>
+
+      <section class="environment-step complete-step" data-step="5" hidden>
+        <h3>일조량·환기 환경 등록이 완료되었습니다.</h3>
+        <p>모든 내용을 확인했습니다. 필요하면 다시 설정할 수 있습니다.</p>
+
+        <div class="step-actions">
+          <button id="environment-restart-button" type="button">환경 다시 등록하기</button>
+          <button id="environment-close-button" type="button">완료 화면 닫기</button>
+        </div>
       </section>
     </section>
 
