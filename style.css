@@ -1,3 +1,10 @@
+:root{
+    --muted: #59657d;
+    --success: #18734f;
+    --success-bg: #f2fbf6;
+    --danger: #9d243d;
+}
+
 body{
     color: #292e31;
     font-family: "Noto Sans KR", sans-serif;
@@ -222,6 +229,9 @@ button:active{
 body.dark{
     color: #f4f4f8;
     background-color: #20212a;
+    --muted: #b4bfd4;
+    --success: #76dbaa;
+    --success-bg: #1c331c;
 }
 body.dark p,
 body.dark nav a{
@@ -320,6 +330,9 @@ body.dark #recording-dialog{
     border-radius: 24px;
     background-color: #ffffff;
 }
+.training-flow form {
+  display: block;
+}
 .training-flow[hidden],
 .training-flow .step[hidden],
 .training-flow fieldset[hidden]{
@@ -364,9 +377,71 @@ body.dark #recording-dialog{
     gap: 12px;
     margin-top: 20px;
 }
+
+.submit-status{
+    min-height: 24px;
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+.submit-status.is-success{
+    color: var(--success);
+}
+.submit-status.has-error{
+    color: var(--danger);
+}
+
 body.dark .training-flow{
     background-color: #50515f;
     border-color: #2d2e38;
+}
+
+.field-help{
+    margin: 5px 0 0;
+    font-size: 14px;
+}
+.field-meta{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 6px;
+}
+.field-meta .field-help{
+    margin: 0;
+}
+.field-count{
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+.error-message:empty{
+    display: block;
+    visibility: hidden;
+}
+#title-field.is-valid input[type="text"]{
+    border-color: var(--success);
+    background: var(--success-bg);
+}
+#title-field.is-valid .field-count{
+    color: var(--success);
+    font-weight: 800;
+}
+#title-field.has-error input[type="text"]{
+    border-color: var(--danger);
+}
+#title-field.has-error .field-count{
+    color: var(--danger);
+    font-weight: 800;
+}
+
+#finish-button:disabled {
+    color: #ffffff;
+    background-color: #a8a8b2;
+    cursor: not-allowed;
 }
 
 #environment-flow .environment-step[hidden]{
@@ -398,6 +473,117 @@ body.dark .training-flow{
 }
 #environment-flow fieldset legend{
     margin-bottom: 8px;
+}
+
+#environment-finish-button:disabled {
+    color: #ffffff;
+    background-color: #a8a8b2;
+    cursor: not-allowed;
+}
+
+.saved-plants-section {
+    margin-top: 56px;
+    padding-bottom: 32px;
+}
+
+.archive-status:empty {
+    display: none;
+}
+
+.archive-status {
+    color: #635bff;
+    font-weight: 700;
+}
+
+.empty-state {
+    padding: 36px 24px;
+    border: 1px dashed #c9d2e5;
+    border-radius: 16px;
+    background-color: #ffffff;
+}
+
+.saved-plant-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.saved-plant-list[hidden] {
+    display: none;
+}
+
+.saved-plant-card {
+    padding: 20px;
+    border: 1px solid #deddea;
+    border-radius: 14px;
+    background-color: #ffffff;
+}
+
+.saved-plant-card h3 {
+    margin-top: 0;
+    overflow-wrap: anywhere;
+}
+
+.saved-plant-card button {
+    min-height: 42px;
+}
+
+.saved-plants-link {
+    display: inline-block;
+    margin: 8px 0 16px;
+}
+
+.plant-dialog {
+    width: min(520px, calc(100% - 32px));
+    max-width: none;
+    padding: 24px;
+    border: 1px solid #deddea;
+    border-radius: 16px;
+}
+
+.plant-dialog::backdrop {
+    background: rgb(30 20 39 / 60%);
+}
+
+.plant-dialog-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.plant-dialog-top button {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.plant-dialog .summary-list > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #deddea;
+}
+
+#plant-dialog-done {
+    width: 100%;
+    margin-top: 20px;
+}
+
+body.dark .saved-plant-card,
+body.dark .empty-state,
+body.dark .plant-dialog {
+    color: #ffffff;
+    background-color: #50515f;
+    border-color: #2d2e38;
+}
+
+.saved-plant-card time {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 /*웹페이지가 가로 폭이 768px이하일 때만 적용*/
@@ -484,5 +670,18 @@ body.dark .training-flow{
     #training-flow .complete-step .step-actions button{
         width: auto;
         flex: 1;
+    }
+
+    .plant-dialog-top button {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        flex: 0 0 44px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        line-height: 1;
     }
 }

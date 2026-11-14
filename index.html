@@ -26,6 +26,7 @@
       <a href="#features">주요 기능</a>
       <a href="#steps">이용 방법</a>
       <a href="#event-practice">맞춤형 케어 설정</a>
+      <a href="#saved-plants">저장한 반려 식물</a>
       <a href="#subscribe">소식 받기</a>
     </nav>
   </header>
@@ -169,53 +170,63 @@
         <span class="progress__item">3 · 확인</span>
       </p>
 
-      <section class="step" data-step="1" hidden>
-        <h3>반려 식물의 정보를 입력해주세요.</h3>
-        <label for="presentation-title">반려 식물 이름</label>
-        <input id="presentation-title" type="text" placeholder="예 : 쑥쑥이" aria-describedby="title-error">
-        <p id="title-error" class="error-message" aria-live="polite"></p>
-        <button id="title-next" type="button">케어 조건 선택하기</button>
-      </section>
-
-      <section class="step" data-step="2" hidden>
-        <h3>케어 조건을 선택해주세요.</h3>
-        <label for="duration-range">돌볼 수 있는 시간</label>
+      <form id="care-form" novalidate aria-busy="false">
+        <section class="step" data-step="1" hidden>
+          <h3>반려 식물의 정보를 입력해주세요.</h3>
+          <div class="field" id="title-field">
+            <label for="presentation-title">반려 식물 이름</label>
+          <input id="presentation-title" name="plantName" type="text" minlength="2" maxlength="60" required placeholder="예 : 쑥쑥이" aria-describedby="title-help title-count title-error">
+            <div class="field-meta">
+              <p id="title-help" class="field-help">2자 이상 60자 이하로 입력해주세요.</p>
+              <p id="title-count" class="field-count" aria-live="polite">0 / 60자</p>
+            </div>
+            <p id="title-error" class="error-message" aria-live="polite"></p>
+          </div>
+          <button id="title-next" type="button">케어 조건 선택하기</button>
+        </section>
+      
+        <section class="step" data-step="2" hidden>
+          <h3>케어 조건을 선택해주세요.</h3>
+          <label for="duration-range">돌볼 수 있는 시간</label>
         <input id="duration-range" type="range" min="0" max="2" step="1" value="1">
-        <output id="duration-value" for="duration-range">5분</output>
-        <label><input type="checkbox" id="qna-option">키우기 시작한 일 수(케어 설정 당일이면 체크하지 마세요.)</label>
-        <fieldset id="qna-options" hidden>
-          <legend>키우기 시작한 일 수</legend>
-          <label><input type="radio" name="qna-count" value="1">1일</label>
-          <label><input type="radio" name="qna-count" value="2" checked>2일</label>
-          <label><input type="radio" name="qna-count" value="3">그 이상</label>
-        </fieldset>
-        <div class="step-actions">
-          <button id="option-prev" type="button">이전</button>
-          <button id="option-next" type="button">내용 확인하기</button>
-        </div>
-      </section>
-
-      <section class="step" data-step="3" hidden>
-        <h3>입력한 내용을 확인해주세요.</h3>
-        <div class="summary-list">
-          <div><span>반려 식물 이름</span><strong id="summary-title"></strong></div>
-          <div><span>돌볼 수 있는 시간</span><strong id="summary-duration"></strong></div>
-          <div><span>키우기 시작한 일 수</span><strong id="summary-qna"></strong></div>
-        </div>
-        <div class="step-actions">
-          <button id="summary-prev" type="button">수정하기</button>
-          <button id="finish-button" type="button">설정 완료하기</button>
-        </div>
-      </section>
-
-      <section class="step complete-step" data-step="4" hidden>
-        <h3>반려 식물 설정이 완료되었습니다.</h3>
-        <p>설정한 내용을 확인했습니다. 필요하면 다시 설정할 수 있습니다.</p>
-        <div class="step-actions">
-          <button id="restart-button" type="button">다시 설정하기</button>
-          <button id="environment-start-button" type="button">환경 등록하기</button>
-        </div>
-      </section>
+          <output id="duration-value" for="duration-range">5분</output>
+          <label><input type="checkbox" id="qna-option" name="qna" value="included" aria-controls="qna-options" aria-expanded="false">키우기 시작한 일 수(케어 설정 당일이면 체크하지 마세요.)</label>
+          <fieldset id="qna-options" hidden>
+            <legend>키우기 시작한 일 수</legend>
+            <label><input type="radio" name="qna-count" value="1">1일</label>
+            <label><input type="radio" name="qna-count" value="2" checked>2일</label>
+            <label><input type="radio" name="qna-count" value="3">그 이상</label>
+          </fieldset>
+          <div class="step-actions">
+            <button id="option-prev" type="button">이전</button>
+            <button id="option-next" type="button">내용 확인하기</button>
+          </div>
+        </section>
+      
+        <section class="step" data-step="3" hidden>
+          <h3>입력한 내용을 확인해주세요.</h3>
+          <div class="summary-list">
+            <div><span>반려 식물 이름</span><strong id="summary-title"></strong></div>
+            <div><span>돌볼 수 있는 시간</span><strong id="summary-duration"></strong></div>
+            <div><span>키우기 시작한 일 수</span><strong id="summary-qna"></strong></div>
+          </div>
+          <div class="step-actions">
+            <button id="summary-prev" type="button">수정하기</button>
+          <button id="finish-button" type="submit">설정 완료하기</button>
+          </div>
+        <p id="submit-status" class="submit-status" role="status" aria-live="polite"></p>
+        </section>
+      
+        <section class="step complete-step" data-step="4" hidden>
+          <h3>반려 식물 설정이 완료되었습니다.</h3>
+          <p id="complete-message">설정한 내용을 확인했습니다. 필요하면 다시 설정할 수 있습니다.</p>
+          <a class="saved-plants-link" href="#saved-plants">저장한 식물 정보 다시 보기</a>
+          <div class="step-actions">
+            <button id="restart-button" type="button">다시 설정하기</button>
+            <button id="environment-start-button" type="button">환경 등록하기</button>
+          </div>
+        </section>
+      </form>
     </section>
     
     <section id="environment-flow" class="training-flow" hidden>
@@ -329,10 +340,12 @@
           <div><span>창문에서 식물까지 거리</span><strong id="environment-summary-distance"></strong></div>
           <div><span>환기 상태</span><strong id="environment-summary-ventilation"></strong></div>
         </div>
+
         <div class="step-actions">
           <button class="environment-prev" type="button">이전</button>
           <button id="environment-finish-button" type="button">설정 완료하기</button>
         </div>
+        <p id="environment-save-status" class="submit-status" role="status" aria-live="polite"></p>
       </section>
 
       <section class="environment-step complete-step" data-step="5" hidden>
@@ -344,6 +357,21 @@
           <button id="environment-close-button" type="button">완료 화면 닫기</button>
         </div>
       </section>
+    </section>
+
+    <section id="saved-plants" class="saved-plants-section">
+      <h2>저장한 반려 식물</h2>
+      <p>저장한 식물의 설정 정보를 다시 확인할 수 있습니다.</p>
+
+      <p id="archive-status" class="archive-status" role="status" aria-live="polite"></p>
+
+      <div id="empty-state" class="empty-state">
+        <h3>저장한 식물이 아직 없어요.</h3>
+        <p>반려 식물 설정을 완료하면 이곳에서 확인할 수 있습니다.</p>
+        <a href="#event-practice">식물 설정하러 가기</a>
+      </div>
+    
+      <ul id="plan-list" class="saved-plant-list" aria-label="저장한 반려 식물" hidden></ul>
     </section>
 
     <section id="subscribe" class="subscribe-card">
@@ -360,6 +388,40 @@
       
     </section>
   </main>
+
+  <dialog id="plant-dialog" class="plant-dialog" aria-labelledby="plant-dialog-title">
+    <div class="plant-dialog-top">
+      <p>저장한 반려 식물</p>
+      <button id="plant-dialog-close" type="button" aria-label="닫기">×</button>
+    </div>
+  
+    <h2 id="plant-dialog-title"></h2>
+    <p id="plant-dialog-date"></p>
+  
+    <dl class="summary-list">
+      <div><dt>반려 식물 이름</dt><dd id="plant-dialog-name"></dd></div>
+      <div><dt>돌볼 수 있는 시간</dt><dd id="plant-dialog-duration"></dd></div>
+      <div><dt>키우기 시작한 기간</dt><dd id="plant-dialog-age"></dd></div>
+    </dl>
+    
+    <section id="plant-dialog-environment" hidden>
+      <h3>일조량·환기 환경</h3>
+
+      <dl class="summary-list">
+        <div><dt>식물 종류</dt><dd id="dialog-environment-plant"></dd></div>
+        <div><dt>창문 방향</dt><dd id="dialog-environment-direction"></dd></div>
+        <div><dt>계절</dt><dd id="dialog-environment-season"></dd></div>
+        <div><dt>유리창 종류</dt><dd id="dialog-environment-glass"></dd></div>
+        <div><dt>커튼·차양</dt><dd id="dialog-environment-curtain"></dd></div>
+        <div><dt>방충망</dt><dd id="dialog-environment-screen"></dd></div>
+        <div><dt>창문 밖 가림</dt><dd id="dialog-environment-shade"></dd></div>
+        <div><dt>식물과 창문 사이 거리</dt><dd id="dialog-environment-distance"></dd></div>
+        <div><dt>환기 상태</dt><dd id="dialog-environment-ventilation"></dd></div>
+      </dl>
+    </section>
+
+    <button id="plant-dialog-done" type="button">확인했어요</button>
+  </dialog>
 
   <footer>
     <small>&copy; 2026 반려식물 케어 서비스</small>

@@ -125,35 +125,244 @@ const flowSteps = trainingFlow.querySelectorAll(".step");
 const progressItems = trainingFlow.querySelectorAll(".progress__item");
 const titleInput = document.querySelector("#presentation-title");
 const titleError = document.querySelector("#title-error");
+const titleField = document.querySelector("#title-field");
+const titleHelp = document.querySelector("#title-help");
+const titleCount = document.querySelector("#title-count");
 const titleNext = document.querySelector("#title-next");
 const durationRange = document.querySelector("#duration-range");
 const durationValue = document.querySelector("#duration-value");
 const qnaOption = document.querySelector("#qna-option");
 const qnaOptions = document.querySelector("#qna-options");
+const qnaInputs = document.querySelectorAll('input[name="qna-count"]');
 const optionPrev = document.querySelector("#option-prev");
 const optionNext = document.querySelector("#option-next");
 const summaryPrev = document.querySelector("#summary-prev");
-const finishButton = document.querySelector("#finish-button");
 const restartButton = document.querySelector("#restart-button");
 const summaryTitle = document.querySelector("#summary-title");
 const summaryDuration = document.querySelector("#summary-duration");
 const summaryQna = document.querySelector("#summary-qna");
 const durationValues = ["3", "5", "10"];
+const careForm = document.querySelector("#care-form");
+let currentStep = 0;
 
 const formData = {
     title:"", duration: "5", qna: false, qnaCount: "2"
 };
 
-function showStep(index) {
+const storageKey = "plant-care-settings-v1";
+const planList = document.querySelector("#plan-list");
+const archiveStatus = document.querySelector("#archive-status");
+const emptyState = document.querySelector("#empty-state");
+const plantDialog = document.querySelector("#plant-dialog");
+const plantDialogTitle = document.querySelector("#plant-dialog-title");
+const plantDialogDate = document.querySelector("#plant-dialog-date");
+const plantDialogName = document.querySelector("#plant-dialog-name");
+const plantDialogDuration = document.querySelector("#plant-dialog-duration");
+const plantDialogAge = document.querySelector("#plant-dialog-age");
+
+const plantDialogEnvironment = document.querySelector("#plant-dialog-environment");
+
+const dialogEnvironmentPlant = document.querySelector("#dialog-environment-plant");
+const dialogEnvironmentDirection = document.querySelector("#dialog-environment-direction");
+const dialogEnvironmentSeason = document.querySelector("#dialog-environment-season");
+const dialogEnvironmentGlass = document.querySelector("#dialog-environment-glass");
+const dialogEnvironmentCurtain = document.querySelector("#dialog-environment-curtain");
+const dialogEnvironmentScreen = document.querySelector("#dialog-environment-screen");
+const dialogEnvironmentShade = document.querySelector("#dialog-environment-shade");
+const dialogEnvironmentDistance = document.querySelector("#dialog-environment-distance");
+const dialogEnvironmentVentilation = document.querySelector("#dialog-environment-ventilation");
+
+let plans = [];
+let currentPlanId = "";
+
+try {
+    const savedPlans = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+    if (Array.isArray(savedPlans)) {
+        plans = savedPlans;
+    }
+} catch {
+    plans = [];
+}
+
+function getFormValues() {
+    return {
+        title: formData.title,
+        nickname: "",
+        duration: formData.duration,
+        qna: formData.qna,
+        qnaCount: formData.qnaCount
+    };
+}
+
+function savePlans() {
+    try {
+        localStorage.setItem(storageKey, JSON.stringify(plans));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function renderPlans() {
+    planList.replaceChildren();
+
+    if (plans.length === 0) {
+        emptyState.hidden = false;
+        planList.hidden = true;
+        return;
+    }
+
+    emptyState.hidden = true;
+    planList.hidden = false;
+
+    plans.forEach(function (plan) {
+        const card = document.createElement("li");
+        card.className = "saved-plant-card";
+
+        const title = document.createElement("h3");
+        title.textContent = plan.title;
+
+        const info = document.createElement("p");
+
+        let ageText = "케어 설정 당일";
+
+        card.append(title);
+
+        const savedDate = new Date(plan.createdAt);
+
+        if (!Number.isNaN(savedDate.getTime())) {
+            const dateText = document.createElement("time");
+            dateText.dateTime = plan.createdAt;
+            dateText.textContent = new Intl.DateTimeFormat("ko-KR", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }).format(savedDate);
+        
+            card.append(dateText);
+        }
+
+        if (plan.qna) {
+            if (plan.qnaCount === "3") {
+                ageText = "키운 지 3일 이상";
+            } else {
+                ageText = `키운 지 ${plan.qnaCount}일`;
+            }
+        }
+
+        info.textContent = `${plan.duration}분 돌봄 · ${ageText}`;
+
+        const openButton = document.createElement("button");
+        openButton.type = "button";
+        openButton.textContent = "정보 확인";
+        openButton.dataset.action = "open";
+        openButton.dataset.id = plan.id;
+
+        card.append(title, info, openButton);
+        planList.append(card);
+    });
+}
+
+planList.addEventListener("click", function (event) {
+    const button = event.target.closest('button[data-action="open"]');
+
+    if (!button) return;
+
+    const selectedPlan = plans.find(function (plan) {
+        return plan.id === button.dataset.id;
+    });
+
+    if (!selectedPlan) return;
+
+    plantDialogTitle.textContent = selectedPlan.title;
+    plantDialogName.textContent = selectedPlan.title;
+    plantDialogDuration.textContent = `${selectedPlan.duration}분`;
+
+    if (selectedPlan.qna) {
+        if (selectedPlan.qnaCount === "3") {
+            plantDialogAge.textContent = "3일 이상";
+        } else {
+            plantDialogAge.textContent = `${selectedPlan.qnaCount}일`;
+        }
+    } else {
+        plantDialogAge.textContent = "케어 설정 당일";
+    }
+
+    const savedDate = new Date(selectedPlan.createdAt);
+
+    if (!Number.isNaN(savedDate.getTime())) {
+        plantDialogDate.textContent =
+            new Intl.DateTimeFormat("ko-KR", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }).format(savedDate);
+    } else {
+        plantDialogDate.textContent = "";
+    }
+
+    if (selectedPlan.environment) {
+    const environment = selectedPlan.environment;
+
+    plantDialogEnvironment.hidden = false;
+    dialogEnvironmentPlant.textContent = environment.plantType;
+    dialogEnvironmentDirection.textContent = environment.windowDirection;
+    dialogEnvironmentSeason.textContent = environment.season;
+    dialogEnvironmentGlass.textContent = environment.glassType;
+    dialogEnvironmentCurtain.textContent = environment.curtain;
+    dialogEnvironmentScreen.textContent = environment.screen;
+    dialogEnvironmentShade.textContent = environment.shade;
+    dialogEnvironmentDistance.textContent = environment.plantDistance;
+    dialogEnvironmentVentilation.textContent = environment.ventilation;
+
+    } else {
+        plantDialogEnvironment.hidden = true;
+    }
+
+    plantDialog.showModal();
+});
+
+document.querySelector("#plant-dialog-close").addEventListener("click", function () {
+    plantDialog.close();
+});
+
+document.querySelector("#plant-dialog-done").addEventListener("click", function () {
+    plantDialog.close();
+});
+
+renderPlans();
+
+/*function showStep(index) {
     flowSteps.forEach((step, i) => { step.hidden = i !== index; });
     progressItems.forEach((item, i) => {
         item.classList.toggle("is-active", i === index);
     });
+}*/
+function showStep(index) {
+  currentStep = index;
+
+  flowSteps.forEach((step, i) => {
+    step.hidden = i !== index;
+  });
+
+  progressItems.forEach((item, i) => {
+    item.classList.toggle("is-active", i === index);
+  });
+
+  const heading = flowSteps[index].querySelector("h3");
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
 }
 
 const recordingDialog = document.querySelector("#recording-dialog");
 const recordingCancle = document.querySelector("#recording-cancel");
 const recordingConfirm = document.querySelector("#recording-confirm");
+
+const saveButton = document.querySelector("#finish-button");
+const submitStatus = document.querySelector("#submit-status");
+const completeMessage = document.querySelector("#complete-message");
+let isSubmitting = false;
 
 function revokeRecordingAgreement() {
     agreeCheck.checked = false;
@@ -180,30 +389,106 @@ recordingConfirm.addEventListener("click", () => {
     titleInput.focus();
 });
 
+function updateTitleExperience(){
+    const length = titleInput.value.length;
+    const valid = titleInput.value.trim().length >= 2;
+    const hasError = titleInput.getAttribute("has-error") === "true";
+
+    titleCount.textContent = `${length} / 60자`;
+    /*titleCount.textContent = length + " / 60자";*/
+    titleField.classList.toggle("has-error", hasError);
+    titleField.classList.toggle("is-valid", valid && !hasError);
+    titleHelp.textContent = hasError
+        ? "입력 조건을 다시 확인해주세요."
+        : valid
+            ? "입력 조건을 충족했습니다."
+    : "2자 이상 60자 이하로 입력해주세요."
+}
+
 function validateTitle() {
     const value = titleInput.value.trim();
     if (!value) {
         titleError.textContent = "반려 식물 이름을 입력해주세요.";
-        titleInput.classList.add("has-error");
+        titleInput.classList.add("aria-invalid");
+        updateTitleExperience();
+        titleInput.focus();
+        return false;
+    }
+    if (value.length < 2){
+        titleError.textContent = "반려 식물 이름은 2자 이상 입력해주세요.";
+        titleInput.setAttribute("aria-invalid", "true");
+        updateTitleExperience();
         titleInput.focus();
         return false;
     }
     titleError.textContent = "";
-    titleInput.classList.remove("has-error");
+    titleInput.classList.remove("aria-invalid");
+    updateTitleExperience();
     formData.title = value;
     return true;
 }
+
+titleInput.addEventListener("input", () => {
+  if (titleInput.getAttribute("aria-invalid") === "true") {
+    validateTitle();
+  } else {
+    updateTitleExperience();
+  }
+});
 
 titleNext.addEventListener("click", () => {
     if (!validateTitle()) return;
     showStep(1);
 });
+updateTitleExperience();
 
 durationRange.addEventListener("input", () => {
     durationValue.value = durationValues[durationRange.value] + "분";
 });
-qnaOption.addEventListener("change", () => {
+
+function syncQnaOptions(){
+    const open = qnaOption.checked;
+    qnaOption.setAttribute("aria-expanded", String(open));
+    qnaOptions.hidden = !open;
+    qnaInputs.forEach((input) => {
+        input.disabled = !open;
+    });
+}
+
+/*qnaOption.addEventListener("change", () => {
     qnaOptions.hidden = !qnaOption.checked;
+});*/
+qnaOption.addEventListener("change", syncQnaOptions);
+syncQnaOptions();
+
+careForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (currentStep === 0) {
+        if (validateTitle()) showStep(1);
+        return;
+    }
+      if (currentStep === 1) {
+        optionNext.click();
+        return;
+    }
+    if (currentStep !== 2 || isSubmitting) return;
+
+    if(!validateTitle()) {
+        showStep(0);
+        titleInput.focus();
+        return;
+    }
+
+    setSubmitState("loading", "입력한 정보를 저장하고 있습니다.");
+    window.setTimeout(() => {
+        if (!saveCareSettings()) {
+            setSubmitState("error", "저장하지 못했습니다. 입력 내용을 확인하고 다시 시도해주세요.");
+            return;
+        }
+        setSubmitState("success", "정보 저장이 완료되었습니다.");
+        showStep(3);
+    }, 600);
 });
 
 optionPrev.addEventListener("click", () => showStep(0));
@@ -218,8 +503,42 @@ optionNext.addEventListener("click", () => {
     showStep(2);
 });
 
+function setSubmitState(state, message){
+    isSubmitting = state === "loading";
+    careForm.setAttribute("aria-busy", String(isSubmitting));
+    saveButton.disabled = isSubmitting;
+    saveButton.textContent = isSubmitting ? "저장하는 중..." : "설정 완료하기";
+    submitStatus.textContent = message;
+    submitStatus.classList.toggle("is-success", state === "success");
+    submitStatus.classList.toggle("has-error", state === "error");
+}
+
 summaryPrev.addEventListener("click", () => showStep(1));
-finishButton.addEventListener("click", () => showStep(3));
+/*finishButton.addEventListener("click", () => showStep(3));*/
+function saveCareSettings(){
+    const plan = {
+        id: typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random()}`,
+        ...getFormValues(),
+        cancelled: false,
+        createdAt: new Date().toISOString()
+    };
+
+    plans.unshift(plan);
+    if(!savePlans()){
+        plans.shift();
+        return false;
+    }
+
+    currentPlanId = plan.id;
+
+    renderPlans();
+    archiveStatus.textContent = `'${plan.title}' 정보를 저장했습니다.`;
+    completeMessage.textContent = `'${plan.title}' 정보를 다시 열어볼 수 있습니다.`;
+    return true;
+}
+
 restartButton.addEventListener("click", () => {
     formData.title = "";
     formData.duration = "5";
@@ -227,11 +546,15 @@ restartButton.addEventListener("click", () => {
     formData.qnaCount = "2";
     titleInput.value = "";
     titleError.textContent = "";
-    titleInput.classList.remove("has-error");
+    /*titleInput.classList.remove("has-error");*/
+    titleInput.removeAttribute("has-error");
+    titleField.classList.remove("is-valid", "has-error");
+    updateTitleExperience();
+    setSubmitState("idle", "");
     durationRange.value = "1";
     durationValue.value = "5분";
     qnaOption.checked = false;
-    qnaOptions.hidden = true;
+    syncQnaOptions();
     document.querySelector('input[name="qna-count"][value="2"]').checked = true;
     summaryTitle.textContent = "";
     summaryDuration.textContent = "";
@@ -247,6 +570,8 @@ const environmentProgressItems = environmentFlow.querySelectorAll(".environment-
 const plantTypeInput = document.querySelector("#plant-type");
 const plantTypeError = document.querySelector("#plant-type-error");
 const environmentError = document.querySelector("#environment-error");
+const environmentSaveStatus = document.querySelector("#environment-save-status");
+const environmentFinishButton = document.querySelector("#environment-finish-button");
 const environmentSummaryPlant = document.querySelector("#environment-summary-plant");
 const environmentSummaryDirection = document.querySelector("#environment-summary-direction");
 const environmentSummarySeason = document.querySelector("#environment-summary-season");
@@ -364,9 +689,53 @@ document.querySelector("#environment-confirm-button").addEventListener("click", 
     showEnvironmentStep(3);
 });
 
-document.querySelector("#environment-finish-button").addEventListener("click", function () {
+/*document.querySelector("#environment-finish-button").addEventListener("click", function () {
     showEnvironmentStep(4);
+});*/
+environmentFinishButton.addEventListener("click", function () {
+    if (environmentFinishButton.disabled) return;
+
+    const savedPlan = plans.find(function (plan) {
+        return plan.id === currentPlanId;
+    });
+
+    if (!savedPlan) {
+        environmentSaveStatus.textContent = "저장한 반려 식물 정보를 찾을 수 없습니다.";
+        return;
+    }
+
+    const previousEnvironment = savedPlan.environment;
+
+    environmentFlow.setAttribute("aria-busy", "true");
+    environmentFinishButton.disabled = true;
+    environmentFinishButton.textContent = "저장하는 중...";
+    environmentSaveStatus.textContent = "일조량·환기 환경 정보를 저장하고 있습니다.";
+
+    window.setTimeout(function () {
+        savedPlan.environment = {
+            ...environmentData
+        };
+
+        if (!savePlans()) {
+            savedPlan.environment = previousEnvironment;
+            environmentFlow.setAttribute("aria-busy", "false");
+            environmentFinishButton.disabled = false;
+            environmentFinishButton.textContent = "설정 완료하기";
+            environmentSaveStatus.textContent = "저장하지 못했습니다. 다시 시도해주세요.";
+            return;
+        }
+
+        archiveStatus.textContent = `‘${savedPlan.title}’의 모든 정보를 저장했습니다.`;
+
+        renderPlans();
+
+        environmentFlow.setAttribute("aria-busy", "false");
+        environmentFinishButton.disabled = false;
+        environmentFinishButton.textContent = "설정 완료하기";
+        showEnvironmentStep(4);
+    }, 600);
 });
+
 
 document.querySelector("#environment-restart-button").addEventListener("click", function () {
     environmentData.plantType = "";
