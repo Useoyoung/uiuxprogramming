@@ -150,6 +150,7 @@ const formData = {
 };
 
 const storageKey = "plant-care-settings-v1";
+const planCount = document.querySelector("#plan-count");
 const planList = document.querySelector("#plan-list");
 const archiveStatus = document.querySelector("#archive-status");
 const emptyState = document.querySelector("#empty-state");
@@ -161,6 +162,14 @@ const plantDialogDuration = document.querySelector("#plant-dialog-duration");
 const plantDialogAge = document.querySelector("#plant-dialog-age");
 
 const plantDialogEnvironment = document.querySelector("#plant-dialog-environment");
+
+const navLinks = document.querySelectorAll(".main-nav a");
+
+const menuToggle = document.querySelector("#menu-toggle");
+const mainNav = document.querySelector("#main-nav");
+
+const filterButtons = document.querySelectorAll(".filter-button");
+let currentFilter = "all";
 
 const dialogEnvironmentPlant = document.querySelector("#dialog-environment-plant");
 const dialogEnvironmentDirection = document.querySelector("#dialog-environment-direction");
@@ -204,8 +213,77 @@ function savePlans() {
     }
 }
 
+function updateCurrentNav() {
+    const currentHash = window.location.hash;
+
+    navLinks.forEach((link) => {
+        const current = currentHash
+            ? link.getAttribute("href") === currentHash
+            : link === navLinks[0];
+        
+        link.classList.toggle("is-current", "page");
+
+        if (current) {
+            link.setAttribute("aria-current", "page");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
+}
+
+window.addEventListener("hashchange", updateCurrentNav);
+updateCurrentNav();
+
+menuToggle.addEventListener("click", () =>{
+    const isOpen = mainNav.classList.toggle("is-open");
+
+    menuToggle.textContent = isOpen ? "메뉴 닫기" : "메뉴 열기"
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+});
+
+navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+        mainNav.classList.remove("is-open");
+        menuToggle.textContent = "메뉴 열기";
+        menuToggle.setAttribute("aria-expanded", "false");
+    });
+});
+
+function getVisiblePlans() {
+    return plans.filter((plan) => {
+        if (currentFilter === "all") return true;
+        if (currentFilter === "cancelled") return plan.cancelled;
+        return !plan.cancelled;
+    });
+}
+
 function renderPlans() {
+    const visiblePlans = getVisiblePlans();
+
     planList.replaceChildren();
+    emptyState.hidden = visiblePlans.length !==0;
+    planList.hidden = visiblePlans.length === 0;
+
+    const emptyTitle = emptyState.querySelector("h3");
+    const emptyDescription = emptyState.querySelector("p");
+    const emptyAction = emptyState.querySelector("a");
+
+    if (visiblePlans.length === 0) {
+        const filtered = currentFilter !== "all";
+        emptyTitle.textContent = filtered
+            ? "선택한 상태의 반려 식물이 없어요."
+            : "아직 저장한 반려 식물이 없어요.";
+        emptyDescription.textContent = filtered
+            ? "다른 상태를 선택해보세요."
+            : "첫 반려 식물을 설정하면 이곳에서 다시 볼 수 있습니다.";
+        emptyAction.hidden = filtered;
+    }
+
+    planCount.textContent = String(visiblePlans.length);
+    planCount.setAttribute(
+        "aria-label",
+        `현재 표시중인 식물 ${visiblePlans.length}개`
+    );
 
     if (plans.length === 0) {
         emptyState.hidden = false;
@@ -213,12 +291,22 @@ function renderPlans() {
         return;
     }
 
-    emptyState.hidden = true;
-    planList.hidden = false;
+    /*emptyState.hidden = true;
+    planList.hidden = false;*/
 
-    plans.forEach(function (plan) {
+    visiblePlans.forEach(function (plan) {
         const card = document.createElement("li");
         card.className = "saved-plant-card";
+
+        card.className = `saved-plant-card${plan.cancelled ? " is-cancelled" : ""}`;
+
+        const cardTop = document.createElement("div");
+        cardTop.className = "saved-plant-card-top";
+
+        const stateText = document.createElement("span");
+        stateText.className = "saved-plant-state";
+        stateText.textContent = plan.cancelled ? "취소됨" : "저장됨";
+        cardTop.append(stateText);
 
         const title = document.createElement("h3");
         title.textContent = plan.title;
@@ -240,7 +328,7 @@ function renderPlans() {
                 day: "numeric"
             }).format(savedDate);
         
-            card.append(dateText);
+            cardTop.append(dateText);
         }
 
         if (plan.qna) {
@@ -259,13 +347,38 @@ function renderPlans() {
         openButton.dataset.action = "open";
         openButton.dataset.id = plan.id;
 
-        card.append(title, info, openButton);
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.textContent = plan.cancelled ? "취소 되돌리기" : "취소하기";
+        cancelButton.dataset.action = "toggle";
+        cancelButton.dataset.id = plan.id;
+
+        const actions = document.createElement("div");
+        actions.className = "saved-plant-actions";
+        actions.append(openButton, cancelButton);
+
+        card.append(cardTop, title, info, actions);
+        /*card.append(title, info, openButton);*/
         planList.append(card);
     });
 }
 
+filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        filterButtons.forEach((item) => {
+            const selected = item === button;
+            item.classList.toggle("is-active", selected);
+            item.setAttribute("aria-pressed", String(selected));
+        });
+        renderPlans();
+    });
+});
+
 planList.addEventListener("click", function (event) {
-    const button = event.target.closest('button[data-action="open"]');
+    /*const button = event.target.closest('button[data-action="open"]');*/
+    const button = event.target.closest("button[data-action]");
 
     if (!button) return;
 
@@ -275,7 +388,69 @@ planList.addEventListener("click", function (event) {
 
     if (!selectedPlan) return;
 
-    plantDialogTitle.textContent = selectedPlan.title;
+    if (button.dataset.action === "open") {
+        plantDialogTitle.textContent = selectedPlan.title;
+        plantDialogName.textContent = selectedPlan.title;
+        plantDialogDuration.textContent = `${selectedPlan.duration}분`;
+
+        if (selectedPlan.qna) {
+            if (selectedPlan.qnaCount === "3") {
+                plantDialogAge.textContent = "3일 이상";
+            } else {
+                plantDialogAge.textContent = `${selectedPlan.qnaCount}일`;
+            }
+        } else {
+            plantDialogAge.textContent = "케어 설정 당일";
+        }
+
+        const savedDate = new Date(selectedPlan.createdAt);
+
+        if (!Number.isNaN(savedDate.getTime())) {
+            plantDialogDate.textContent =
+                new Intl.DateTimeFormat("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }).format(savedDate);
+        } else {
+            plantDialogDate.textContent = "";
+        }
+
+        if (selectedPlan.environment) {
+            const environment = selectedPlan.environment;
+
+            plantDialogEnvironment.hidden = false;
+            dialogEnvironmentPlant.textContent = environment.plantType;
+            dialogEnvironmentDirection.textContent = environment.windowDirection;
+            dialogEnvironmentSeason.textContent = environment.season;
+            dialogEnvironmentGlass.textContent = environment.glassType;
+            dialogEnvironmentCurtain.textContent = environment.curtain;
+            dialogEnvironmentScreen.textContent = environment.screen;
+            dialogEnvironmentShade.textContent = environment.shade;
+            dialogEnvironmentDistance.textContent = environment.plantDistance;
+            dialogEnvironmentVentilation.textContent = environment.ventilation;
+        } else {
+            plantDialogEnvironment.hidden = true;
+        }
+
+        plantDialog.showModal();
+        return;
+    }
+
+    const wasCancelled = selectedPlan.cancelled;
+    selectedPlan.cancelled = !wasCancelled;
+
+    if (!savePlans()) {
+        selectedPlan.cancelled = wasCancelled;
+        archiveStatus.textContent = "취소 상태를 저장하지 못했습니다.";
+        return;
+    }
+
+    renderPlans();
+    archiveStatus.textContent = wasCancelled
+        ? `'${selectedPlan.title}' 설정을 다시 사용할 수 있게 바꿨습니다.`
+        : `'${selectedPlan.title}' 설정을 취소했습니다.`;
+    /*plantDialogTitle.textContent = selectedPlan.title;
     plantDialogName.textContent = selectedPlan.title;
     plantDialogDuration.textContent = `${selectedPlan.duration}분`;
 
@@ -320,7 +495,7 @@ planList.addEventListener("click", function (event) {
         plantDialogEnvironment.hidden = true;
     }
 
-    plantDialog.showModal();
+    plantDialog.showModal();*/
 });
 
 document.querySelector("#plant-dialog-close").addEventListener("click", function () {
