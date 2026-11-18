@@ -52,6 +52,9 @@ header{
     /*padding-top: 48px;
     padding-bottom: 32px;*/
 }
+header a{
+    text-decoration: none;
+}
 section{
     margin-top: 56px;
 }
@@ -75,7 +78,7 @@ footer{
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 28px;
+    gap: 15px;
     margin: 0;
     padding: 0;
     list-style: none;

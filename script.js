@@ -221,7 +221,7 @@ function updateCurrentNav() {
             ? link.getAttribute("href") === currentHash
             : link === navLinks[0];
         
-        link.classList.toggle("is-current", "page");
+        link.classList.toggle("is-current", current);
 
         if (current) {
             link.setAttribute("aria-current", "page");
